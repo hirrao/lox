@@ -5,7 +5,7 @@ import com.hirrao.klox.token.Token
 sealed class Statements {
     object None : Statements()
     class Block(val statements: List<Statements>) : Statements()
-    class Class(val name: Token, val superclass: Expressions.Variable, val methods: List<Function>) :
+    class Class(val name: Token, val superclass: Expressions.Variable?, val methods: List<Function>) :
         Statements()
     class Expression(val expression: Expressions) : Statements()
     class Function(val name: Token, val params: List<Token>, val body: List<Statements>) : Statements()

@@ -54,13 +54,19 @@ class Parser(val tokens: List<Token>) {
 
     private fun classDeclaration(): Statements {
         val name = consume(IDENTIFIER, "Expect class name.")
+        val superClass = if (match(LESS)) {
+            consume(IDENTIFIER, "Expect superclass name.")
+            Expressions.Variable(previous())
+        } else {
+            null
+        }
         consume(LEFT_BRACE, "Expect '{' before class body.")
         val methods: MutableList<Statements.Function> = ArrayList()
         while (!check(RIGHT_BRACE) && !isAtEnd()) {
             methods.add(funDeclaration())
         }
         consume(RIGHT_BRACE, "Expect '}' after class body.")
-        return Statements.Class(name, null, methods)
+        return Statements.Class(name, superClass, methods)
     }
 
     // 解析语句部分
@@ -287,6 +293,12 @@ class Parser(val tokens: List<Token>) {
         if (match(NIL)) return Expressions.Literal(null)
         if (match(NUMBER, STRING)) {
             return Expressions.Literal(previous().literal)
+        }
+        if (match(SUPER)) {
+            val keyword = previous()
+            consume(DOT, "Expect '.' after 'super'.")
+            val method = consume(IDENTIFIER, "Expect superclass method name.")
+            return Expressions.Super(keyword, method)
         }
         if (match(THIS)) return Expressions.This(previous())
         if (match(IDENTIFIER)) return Expressions.Variable(previous())
